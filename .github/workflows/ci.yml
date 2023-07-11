@@ -21,8 +21,8 @@ jobs:
       - name: Download browsers for e2e tests
         run: npx playwright install
 
-      - name: Run e2e tests
-        run: npm run e2e
-
       - name: Run unit tests
+        run: npm run test-ci
+
+      - name: Run e2e tests
         run: npm test
