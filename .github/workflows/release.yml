@@ -34,22 +34,14 @@ jobs:
           echo "::set-output name=release_version::${{ github.ref }}"
           echo "::set-output name=author::${{ github.actor }}"
 
-      - name: Generate changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v4.1.0
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Generate changelog
-      #   id: changelog
-      #   uses: metcalfc/changelog-generator@v1.0.0
-      #   with:
-      #     myToken: ${{ secrets.GITHUB_TOKEN }}
-      #     baseTag: ${{ steps.tag.outputs.tag_name }}
-
-      # - name: Create release issue
-      #   uses: peter-evans/create-issue-from-file@v2
-      #   with:
-      #     title: Release ${{ github.ref }}
-      #     content-filepath: ./CHANGELOG.md
-      #     labels: RELEASE
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
