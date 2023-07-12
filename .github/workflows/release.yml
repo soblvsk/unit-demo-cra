@@ -43,38 +43,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get current & previous tags
+      - name: Get information
         id: tags
         run: |
-          echo "currentTag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          echo "previousTag=$(git describe --abbrev=0 ${{ github.ref_name }}^)" >> $GITHUB_OUTPUT
+          currentTag=${{ github.ref_name }}
+          previousTag=$(git --no-pager tag --sort=creatordate --merged ${{ github.ref_name }} | tail -2 | head -1)
+          echo "currentTag=${currentTag}" >> $GITHUB_OUTPUT
+          echo "previousTag=${previousTag}" >> $GITHUB_OUTPUT
           echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
           echo "date=$(date +'%d.%m.%Y %H:%M:%S')" >> $GITHUB_OUTPUT
 
-      # Посмотреть доку и может поменять вид
       - name: Build Changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v4
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
-          owner: 'soblvsk'
-          toTag: ${{steps.tags.outputs.currentTag}}
-          includeOpen: true
-          commitMode: true
-          configurationJson: |
-            {
-              "template": "#{{CHANGELOG}}\n\n<details>\n<summary>Uncategorized</summary>\n\n#{{UNCATEGORIZED}}\n</details>",
-              "categories": [
-                {
-                    "title": "## 🚀 All",
-                    "labels": [""]
-                },
-              ]
-            }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Print changelog
-        run: echo "${{ steps.build_changelog.outputs.changelog}}"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
