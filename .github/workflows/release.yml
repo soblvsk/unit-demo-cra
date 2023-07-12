@@ -55,6 +55,8 @@ jobs:
       - name: Build Changelog
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v3
+        with:
+          configuration: 'configuration.json'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -75,8 +77,6 @@ jobs:
             ${{ steps.github_release.outputs.changelog }}
             ${{ steps.tags.outputs.currentTag}}
             ${{ steps.tags.outputs.previousTag}}
-            ${{ steps.tags.conclusion}}
-            ${{ steps.tags.outcome}}
           pinned: false
           close-previous: false
         env:
