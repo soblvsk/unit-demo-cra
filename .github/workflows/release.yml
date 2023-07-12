@@ -57,7 +57,7 @@ jobs:
         id: build_changelog
         uses: ardalanamini/auto-changelog@v4
         with:
-          semserver: false
+          semver: false
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
