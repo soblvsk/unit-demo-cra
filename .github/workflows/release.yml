@@ -2,8 +2,6 @@ name: Release
 
 on:
   push:
-    branches:
-      - master
     tags:
       - 'v[0-9]+'
 
@@ -60,34 +58,34 @@ jobs:
           writeToFile: false
 
       - name: Create Release
-        uses: ncipollo/release-action@v1.12.0
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          allowUpdates: true
-          draft: true
-          makeLatest: true
-          name: ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changes }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+
+      # - name: Create Release
+      #   uses: ncipollo/release-action@v1.12.0
+      #   with:
+      #     allowUpdates: true
+      #     draft: true
+      #     makeLatest: true
+      #     name: ${{ github.ref_name }}
+      #     body: ${{ steps.changelog.outputs.changes }}
+      #     token: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: '✏️ Generate release changelog'
       #   uses: heinrichreimer/github-changelog-generator-action@v2.3
       #   with:
       #     token: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: Release ${{ github.ref }}
-      #     body: |
-      #       Changes in this Release
-      #       - First Change
-      #       - Second Change
-      #     draft: false
-      #     prerelease: false
 
   # deploy:
   #   needs: release
