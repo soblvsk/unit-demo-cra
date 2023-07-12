@@ -53,15 +53,18 @@ jobs:
 
       # Посмотреть доку и может поменять вид
       - name: Build Changelog
-        id: github_release
-        uses: mikepenz/release-changelog-builder-action@v3
-        with:
-          configuration: 'configuration.json'
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Print changelog
-        run: echo "${{ steps.github_release.outputs.changelog }}"
+        run: echo "${{ steps.build_changelog.outputs.changelog}}"
+
+      - name: Create Release
+        uses: mikepenz/action-gh-release@v1
+        with:
+          body: ${{steps.build_changelog.outputs.changelog}}
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
