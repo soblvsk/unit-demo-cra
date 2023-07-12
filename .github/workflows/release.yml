@@ -55,7 +55,7 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
-        uses: saadmk11/changelog-ci@v1.0.0
+        uses: ardalanamini/auto-changelog@v4
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
@@ -64,12 +64,10 @@ jobs:
           labels: 'RELEASE'
           title: '[${{ github.ref_name }}] Release'
           body: |
-            ${{ github.ref }}
-            ${{ github.ref_name }}
-            ${{ steps.tags.outputs.date }}
-            ${{ steps.tags.outputs.author }}
-            ${{ steps.tags.outputs.currentTag}}
-            ${{ steps.tags.outputs.previousTag}}
+            ## 👀 Information
+            - **Version:** ${{ steps.tags.outputs.currentTag}}
+            - **Author:** ${{ steps.tags.outputs.author }}
+            - **Date:** ${{ steps.tags.outputs.date }}
 
             ${{ steps.build_changelog.outputs.changelog }}
           pinned: false
