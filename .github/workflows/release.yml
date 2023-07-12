@@ -43,6 +43,7 @@ jobs:
         with:
           fetch-depth: 0
 
+          # поменять получение тэгов
       - name: Get current & previous tags
         id: tags
         run: |
@@ -50,37 +51,30 @@ jobs:
           echo ::set-output name=currentTag::$(git tag --sort="-committerdate" | cut -d$'\\n' -f1)
           echo ::set-output name=previousTag::$(git tag --sort="-committerdate" | cut -d$'\\n' -f2)
 
-      - name: 'Generate release changelog'
-        id: generate-release-changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # Посмотреть доку и может поменять вид
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
         with:
           assignees: 'soblvsk'
           labels: 'RELEASE'
-          title: 'Team sync'
+          title: '[${{ github.ref_name }}] Release'
           body: |
-            ### Agenda
 
-            - [ ] Start the recording
-            - [ ] Check-ins
-            - [ ] Discussion points
-            - [ ] Post the recording
-                    
-            ### Discussion Points
-            Add things to discuss below
 
-            - [Work this week](https://github.com/orgs/github/projects/3)
             ${{ github.ref }}
             ${{ github.ref_name }}
             ${{ github.actor }}
 
 
-            ${{ steps.generate-release-changelog.outputs.changelog }}
-            ${{ steps.tags.outputs}}
+            ${{ steps.github_release.outputs.changelog }}
+            ${{ steps.tags.outputs.currentTag}}
+            ${{ steps.tags.outputs.previousTag}}
             ${{ steps.tags.conclusion}}
             ${{ steps.tags.outcome}}
           pinned: false
