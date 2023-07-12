@@ -48,14 +48,10 @@ jobs:
           echo "previousTag: $name"
           echo "previousTag=$name" >> $GITHUB_ENV
 
-      - name: Update CHANGELOG
-        id: changelog
-        uses: requarks/changelog-action@v1
+      - name: '✏️ Generate release changelog'
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
-          token: ${{ github.token }}
-          fromTag: ${{ github.ref_name }}
-          toTag: ${{ env.previousTag }}
-          writeToFile: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         id: create_release
@@ -71,21 +67,6 @@ jobs:
             - Second Change
           draft: false
           prerelease: false
-
-      # - name: Create Release
-      #   uses: ncipollo/release-action@v1.12.0
-      #   with:
-      #     allowUpdates: true
-      #     draft: true
-      #     makeLatest: true
-      #     name: ${{ github.ref_name }}
-      #     body: ${{ steps.changelog.outputs.changes }}
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: '✏️ Generate release changelog'
-      #   uses: heinrichreimer/github-changelog-generator-action@v2.3
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
 
   # deploy:
   #   needs: release
