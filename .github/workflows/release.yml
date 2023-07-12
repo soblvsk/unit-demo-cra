@@ -6,13 +6,14 @@ on:
       - 'v[0-9]+'
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   build:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -25,32 +26,46 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Get release version
-        id: tagId
-        run: |
-          echo "{version}=${{ github.ref }}" >> $GITHUB_OUTPUT
-          echo "{author}=${{ github.actor }}" >> $GITHUB_OUTPUT
-
-      - name: Generate changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v4.1.0
+        if: success()
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
+          name: build
+          path: build/
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: false
-          prerelease: false
+  # release:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ github.ref }}
+  #         release_name: Release ${{ github.ref }}
+  #         body: |
+  #           Changes in this Release
+  #           - First Change
+  #           - Second Change
+  #         draft: false
+  #         prerelease: false
 
-      - name: Run tests
-        run: npm run test
+  # deploy:
+  #   needs: release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v2
+
+  # end:
+  #   needs: deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Close Issue
+  #       uses: peter-evans/close-issue@v3
+  #       with:
+  #         issue-number: 1
+  #         comment: Auto-closing issue
