@@ -55,9 +55,7 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
-        uses: heinrichreimer/github-changelog-generator-action@v2.3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: saadmk11/changelog-ci@v1.0.0
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
