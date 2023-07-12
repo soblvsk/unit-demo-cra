@@ -28,11 +28,71 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Get tag and release version
-        id: tagId
-        run: |
-          echo "::set-output name=release_version::${{ github.ref}}"
-          echo "::set-output name=author::${{ github.actor }}"
+      # - name: Get tag and release version
+      #   id: tagId
+      #   run: |
+      #     echo "::set-output name=release_version::${{ github.ref}}"
+      #     echo "::set-output name=author::${{ github.actor }}"
 
       - name: Generate Changelog
         run: npx conventional-changelog -p angular -i CHANGELOG.md -s
+
+      - name: Get tag and release version
+        id: tagId
+        run: |
+          GITHUB_REF=${{ github.ref }}
+          RELEASE_VERSION=${GITHUB_REF#refs/tags/}
+          AUTHOR=${{ github.actor }}
+          RELEASE_DATE=$(git log -1 --format=%aI $RELEASE_VERSION)
+          echo "::set-output name=release_version::$RELEASE_VERSION"
+          echo "::set-output name=author::$AUTHOR"
+          echo "::set-output name=release_date::$RELEASE_DATE"
+
+      - name: Create release registry entry
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const releaseVersion = '${{ steps.tagId.outputs.release_version }}'
+            const author = '${{ steps.tagId.outputs.author }}'
+            const releaseDate = '${{ steps.tagId.outputs.release_date }}'
+            const changelog = fs.readFileSync('CHANGELOG.md', 'utf8')
+            const issueTitle = `Release Registry Entry - ${releaseVersion}`
+            const issueBody = `
+              # Release Registry Entry
+
+              ## Version
+              ${releaseVersion}
+
+              ## Author
+              ${author}
+
+              ## Date
+              ${releaseDate}
+
+              ## Changelog
+              ${changelog}
+            `
+            const existingIssue = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'RELEASE',
+              state: 'open',
+              direction: 'desc'
+            }).then(response => response.data.find(issue => issue.title === issueTitle))
+
+            if (existingIssue) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: issueBody
+              })
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['RELEASE']
+              })
+            }
