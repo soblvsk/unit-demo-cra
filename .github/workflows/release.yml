@@ -57,6 +57,7 @@ jobs:
         id: build_changelog
         uses: ardalanamini/auto-changelog@v4
         with:
+          release-name: ${{steps.tags.outputs.currentTag}}
           semver: false
 
       - name: Create issue
