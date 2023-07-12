@@ -34,14 +34,12 @@ jobs:
           echo "::set-output name=release_version::${{ github.ref }}"
           echo "::set-output name=author::${{ github.actor }}"
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate changelog
+        run: npx auto-changelog --tag-pattern '^v[0-9]+'
+
+      - name: Create release issue
+        uses: peter-evans/create-issue-from-file@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+          title: Release ${{ github.ref }}
+          content-filepath: ./CHANGELOG.md
+          labels: RELEASE
