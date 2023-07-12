@@ -28,15 +28,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # - name: Get tag and release version
-      #   id: tagId
-      #   run: |
-      #     echo "::set-output name=release_version::${{ github.ref}}"
-      #     echo "::set-output name=author::${{ github.actor }}"
-
-      - name: Generate Changelog
-        run: npx conventional-changelog -p angular -i CHANGELOG.md -s
-
       - name: Get tag and release version
         id: tagId
         run: |
@@ -47,6 +38,9 @@ jobs:
           echo "::set-output name=release_version::$RELEASE_VERSION"
           echo "::set-output name=author::$AUTHOR"
           echo "::set-output name=release_date::$RELEASE_DATE"
+
+      - name: Generate Changelog
+        run: npx conventional-changelog -p angular -i CHANGELOG.md -s -r 0
 
       - name: Create release registry entry
         uses: actions/github-script@v5
