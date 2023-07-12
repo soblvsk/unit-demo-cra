@@ -43,11 +43,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get previous tag
-        id: previousTag
+      - name: Get current & previous tags
+        id: tags
         run: |
-          echo "previousTag=$(git describe --abbrev=0 ${{ github.ref_name }}^)" >> $GITHUB_ENV
-          echo "currentTag=${{ github.ref_name }}" >> $GITHUB_ENV
+          git fetch -a
+          echo ::set-output name=currentTag::$(git tag --sort="-committerdate" | cut -d$'\\n' -f1)
+          echo ::set-output name=previousTag::$(git tag --sort="-committerdate" | cut -d$'\\n' -f2)
 
       - name: 'Generate release changelog'
         id: generate-release-changelog
@@ -55,10 +56,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create team sync issue
+      - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
         with:
-          assignees: 'monalisa, doctocat, hubot'
+          assignees: 'soblvsk'
           labels: 'RELEASE'
           title: 'Team sync'
           body: |
@@ -79,9 +80,9 @@ jobs:
 
 
             ${{ steps.generate-release-changelog.outputs.changelog }}
-            ${{ steps.previousTag.outputs}}
-            ${{ steps.previousTag.conclusion}}
-            ${{ steps.previousTag.outcome}}
+            ${{ steps.tags.outputs}}
+            ${{ steps.tags.conclusion}}
+            ${{ steps.tags.outcome}}
           pinned: false
           close-previous: false
         env:
