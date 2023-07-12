@@ -25,28 +25,29 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Get release version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
       - name: Generate Changelog
-        uses: release-drafter/release-drafter@v5
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.1.0
         with:
-          tag-template: 'v${version}'
-          change-template: '- {message} (@{author})'
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+          base-ref: ${{ github.event.before }}
 
-      - name: Create Release Issue
-        uses: peter-evans/create-issue-from-tag@v2
+      - name: Create release registry issue
+        uses: peter-evans/create-issue-from-file@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
-
-      - name: Update Release Issue
-        uses: peter-evans/update-issue@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
+          title: Release ${{ github.ref }}
+          content-filepath: /tmp/release.md
+          labels: RELEASE
 
       - name: Run tests
         run: npm run test
 
-      - name: Close Release Issue
-        uses: peter-evans/close-issue@v1
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
