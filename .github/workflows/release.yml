@@ -43,13 +43,11 @@ jobs:
         with:
           fetch-depth: 0
 
-          # поменять получение тэгов
       - name: Get current & previous tags
         id: tags
         run: |
-          git fetch -a
-          echo ::set-output name=currentTag::$(git tag --sort="-committerdate" | cut -d$'\\n' -f1)
-          echo ::set-output name=previousTag::$(git tag --sort="-committerdate" | cut -d$'\\n' -f2)
+          echo "currentTag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "previousTag=$(git describe --abbrev=0 ${CURRENT_TAG}^)" >> $GITHUB_OUTPUT
 
       # Посмотреть доку и может поменять вид
       - name: Build Changelog
@@ -61,11 +59,6 @@ jobs:
       - name: Print changelog
         run: echo "${{ steps.build_changelog.outputs.changelog}}"
 
-      - name: Create Release
-        uses: mikepenz/action-gh-release@v1
-        with:
-          body: ${{steps.build_changelog.outputs.changelog}}
-
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
         with:
@@ -73,17 +66,13 @@ jobs:
           labels: 'RELEASE'
           title: '[${{ github.ref_name }}] Release'
           body: |
-
-
             ${{ github.ref }}
             ${{ github.ref_name }}
             ${{ github.actor }}
-
-
-
-            ${{ steps.github_release.outputs.changelog }}
             ${{ steps.tags.outputs.currentTag}}
             ${{ steps.tags.outputs.previousTag}}
+
+            ${{ steps.build_changelog.outputs.changelog }}
           pinned: false
           close-previous: false
         env:
