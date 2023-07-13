@@ -86,8 +86,8 @@ jobs:
 
       - name: Get issue number
         run: |
-          issue-number=${{ steps.create_issue.outputs.issue-number }}
-          echo "issue-number=${issue-number}" >> $GITHUB_OUTPUT
+          issueNumber=${{ steps.create_issue.outputs.issue-number }}
+          echo "issueNumber=${issueNumber}" >> $GITHUB_OUTPUT
 
   build-and-deploy:
     needs: release
