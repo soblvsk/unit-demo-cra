@@ -9,32 +9,7 @@ jobs:
   # ci:
   #   uses: ./.github/workflows/ci.yml
 
-  build:
-    # needs: ci
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
-
-        if: success()
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          name: build
-          path: build/
-
   release:
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -96,22 +71,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy:
+  build-and-deploy:
     needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download Pages artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: build
-          path: build/
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: build/
+          folder: build
+
       - name: Close Issue
         uses: actions/github-script@v6
         with:
