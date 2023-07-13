@@ -84,34 +84,47 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # build-and-deploy:
-  #   needs: release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
+      - name: Get issue number
+        run: |
+          issue-number=${{ steps.create_issue.outputs.issue-number }}
+          echo "issue-number=${issue-number}" >> $GITHUB_OUTPUT
 
-  #     - name: Install Node.js
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 18
+  build-and-deploy:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-  #     - name: Install and Build
-  #       run: |
-  #         npm ci
-  #         npm run build
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-  #     # - name: Deploy
-  #     #   uses: JamesIves/github-pages-deploy-action@v4
-  #     #   with:
-  #     #     folder: build
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
 
-  #     # - name: Close Issue
-  #     #   uses: actions/github-script@v6
-  #     #   with:
-  #     #     script: |
-  #     #       github.rest.issues.update({
-  #     #         issue_number: context.issue.number,
-  #     #         owner: context.repo.owner,
-  #     #         repo: context.repo.repo,
-  #     #         state: "closed"
-  #     #       })
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+
+      - name: Comment issue with deploy
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ needs.release.outputs.issue-number }}
+          body: |
+            ## 💫 Deploy
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ needs.release.outputs.issue-number }}
+          comment: Auto-closing issue
