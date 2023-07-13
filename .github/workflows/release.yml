@@ -55,10 +55,9 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
-        uses: ardalanamini/auto-changelog@master
+        uses: ardalanamini/auto-changelog@v3
         with:
           github-token: ${{ github.token }}
-          release-name: ${{steps.tags.outputs.currentTag}}
           commit-types: |
             build: 🧯 Build System & Dependencies
             ci: 💢 Continuous Integrations
@@ -70,7 +69,13 @@ jobs:
             style: 🎨 Code Style
             test: ⛑ Tests
           default-commit-type: 📂 Other Changes
+          mention-authors: false
+          mention-new-contributors: false
+          include-compare-link: false
+          include-pr-links: false
+          include-commit-links: false
           semver: false
+          use-github-autolink: false
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
