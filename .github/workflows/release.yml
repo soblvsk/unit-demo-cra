@@ -59,6 +59,28 @@ jobs:
         with:
           release-name: ${{steps.tags.outputs.currentTag}}
 
+          github-token: ${{ github.token }}
+          commit-types: |
+            Breaking: 🚨 Breaking Adjustments
+            Build: 🧯 Build Adjustments
+            Chore: 💄 New Chores
+            CI: 💢 Continuous Integrations
+            Dependency: 📖 Dependency Adjustments
+            Documentation: 🌍 Documentation Adjustments
+            Enhancement: 🚀 New Enhancements
+            Feature: 🌟 New Features
+            Fix: 🐞 Bug Fixes
+            Other: 📂 Other Adjustments
+            Patch: 🐞 Bug Patches
+            Performance: 💊 Performance Improvements
+            Refactor: 🐝 Refactored
+            Revert: 🔙 Reverted
+            Style: 🎨 Code Style Adjustments
+            Test: ⛑ Tests
+          default-commit-type: 📂 Other Adjustments
+          include-compare-link: true
+          semver: true
+
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
         with:
