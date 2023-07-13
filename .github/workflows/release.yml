@@ -6,9 +6,6 @@ on:
       - 'v[0-9]+'
 
 jobs:
-  # ci:
-  #   uses: ./.github/workflows/ci.yml
-
   release:
     runs-on: ubuntu-latest
     permissions:
@@ -71,29 +68,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-and-deploy:
+  tests:
     needs: release
+    uses: ./.github/workflows/ci.yml
+
+  build-and-deploy:
+    needs: tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Install and Build
         run: |
           npm ci
-          PUBLIC_URL="/shri-unit-demo-cra" npm run build
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: build
-
-      - name: Close Issue
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.update({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: "closed"
-            })
+          npm run build
