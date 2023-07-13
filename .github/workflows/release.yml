@@ -69,11 +69,11 @@ jobs:
             style: 🎨 Code Style
             test: ⛑ Tests
           default-commit-type: 📂 Other Changes
-          mention-authors: false
+          mention-authors: true
           mention-new-contributors: false
-          include-compare-link: false
-          include-pr-links: false
-          include-commit-links: false
+          include-compare-link: true
+          include-pr-links: true
+          include-commit-links: true
           semver: false
           use-github-autolink: false
 
