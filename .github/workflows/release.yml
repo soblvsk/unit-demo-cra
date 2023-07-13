@@ -79,7 +79,8 @@ jobs:
           issue-number: ${{ steps.create_issue.outputs.issue-number }}
           body: |
             ## ⚙️ Tests results
-            ${{ env.GITHUB_SERVER_URL }}/${{ github.repository }}/actions/runs/${{ env.GITHUB_RUN_ID }}
+            Download the files with the test results, can be downloaded from the link below:
+            ${{github.server_url}}/${{ github.repository }}/actions/runs/${{github.run_id}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
