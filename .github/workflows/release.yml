@@ -19,11 +19,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download test results
-        id: tests_result
-        uses: actions/download-artifact@v2
+      - name: Download unit-tests results
+        id: unit_results
+        uses: actions/download-artifact@v3
         with:
-          name: playwright-report
+          name: unit-results
+          path: unit-results.txt
+
+      - name: Read unit-tests results
+        id: read_unit_results
+        run: |
+          unitRes=$(cat unit-results.txt)
+          echo "unitRes=${unitRes}" >> $GITHUB_OUTPUT
 
       - name: Get information
         id: tags
@@ -84,8 +91,11 @@ jobs:
         with:
           issue-number: ${{ steps.create_issue.outputs.issue-number }}
           body: |
-            ## Test results
-            ${{steps.tests_result.outputs.playwright-report}}
+            ## Unit tests results
+            ${{steps.read_unit_results.outputs.unitRes}}
+
+            ## E2E tests result
+            ${{ env.GITHUB_SERVER_URL }}/${{ github.repository }}/actions/runs/${{ env.GITHUB_RUN_ID }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
