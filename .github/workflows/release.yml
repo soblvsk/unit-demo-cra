@@ -95,21 +95,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # deploy:
-  #   needs: release
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Deploy
-  #       uses: JamesIves/github-pages-deploy-action@v4
-  #       with:
-  #         folder: build
-
-  # end:
-  #   needs: deploy
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Close Issue
-  #       uses: peter-evans/close-issue@v3
-  #       with:
-  #         issue-number: 1
-  #         comment: Auto-closing issue
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+      - name: Close Issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.update({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "closed"
+            })
