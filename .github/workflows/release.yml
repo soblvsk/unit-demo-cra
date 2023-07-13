@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get information
+        id: tags
+        run: |
+          currentTag=${{ github.ref_name }}
+          previousTag=$(git --no-pager tag --sort=creatordate --merged ${{ github.ref_name }} | tail -2 | head -1)
+          echo "currentTag=${currentTag}" >> $GITHUB_OUTPUT
+          echo "previousTag=${previousTag}" >> $GITHUB_OUTPUT
+          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%d.%m.%Y %H:%M:%S')" >> $GITHUB_OUTPUT
+
+      - name: Build Changelog
+        id: build_changelog
+        uses: ardalanamini/auto-changelog@v4
+        with:
+          github-token: ${{ github.token }}
+          commit-types: |
+            build: 🧯 Build System & Dependencies
+            ci: 💢 Continuous Integrations
+            docs: 📖 Documentation
+            feat: 🚀 New Features
+            fix: 🐞 Bug Fixes
+            perf: 💊 Performance Improvements
+            refactor: 🐝 Refactors
+            revert: 🔙 Reverts
+            style: 🎨 Code Style
+            test: ⛑ Tests
+          default-commit-type: 📂 Other Changes
+          mention-authors: true
+          mention-new-contributors: false
+          include-compare-link: true
+          include-pr-links: true
+          include-commit-links: true
+          semver: false
+          use-github-autolink: true
+
+      - name: Create issue
+        uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
+        with:
+          assignees: 'soblvsk'
+          labels: 'RELEASE'
+          title: '[${{ github.ref_name }}] Release'
+          body: |
+            ## 👀 Information
+            - **Version:** ${{ steps.tags.outputs.currentTag}}
+            - **Author:** ${{ steps.tags.outputs.author }}
+            - **Date:** ${{ steps.tags.outputs.date }}
+
+            ${{ steps.build_changelog.outputs.changelog }}
+          pinned: false
+          close-previous: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  tests:
+    needs: release
+    uses: ./.github/workflows/ci.yml
+
+  build-and-deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install and Build
+        run: |
+          npm ci
+          npm run build
