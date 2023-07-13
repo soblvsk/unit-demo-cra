@@ -55,7 +55,7 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
-        uses: ardalanamini/auto-changelog@v3
+        uses: ardalanamini/auto-changelog@v4
         with:
           github-token: ${{ github.token }}
           commit-types: |
@@ -75,7 +75,7 @@ jobs:
           include-pr-links: true
           include-commit-links: true
           semver: false
-          use-github-autolink: false
+          use-github-autolink: true
 
       - name: Create issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
