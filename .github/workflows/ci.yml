@@ -41,7 +41,7 @@ jobs:
         if: always()
         with:
           name: unit-results
-          path: unit-results.txt
+          path: test-report.html
           retention-days: 30
 
   e2e-test:
@@ -74,5 +74,5 @@ jobs:
         if: always()
         with:
           name: e2e-results
-          path: e2e-results/
+          path: playwright-report/
           retention-days: 30
