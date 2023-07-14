@@ -84,12 +84,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get issue number
-        id: number_issue
-        run: echo "::set-output name=issue-number::123"
-
     outputs:
-      issueNumber: ${{ steps.create_issue.outputs.issue-number }}"
+      issueNumber: ${{ steps.create_issue.outputs.issue-number }}
 
   build-and-deploy:
     needs: release
@@ -101,12 +97,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Print Issue Number
-        run: |
-          echo "Issue number1: ${{ needs.release.outputs.issue-number }}"
-          echo "Issue number2: ${{ needs.release.outputs.number_issue.issue-number }}"
-          echo "Issue number3: ${{ needs.release.outputs.issueNumber }}"
 
       - name: Install and Build
         run: |
@@ -121,7 +111,7 @@ jobs:
       - name: Comment issue with deploy
         uses: peter-evans/create-or-update-comment@v3
         with:
-          issue-number: ${{ needs.release.outputs.number_issue.issueNumber }}
+          issue-number: ${{ needs.release.outputs.issueNumber }}
           body: |
             ## 💫 Deploy
             Deployment link: https://soblvsk.github.io/unit-demo-cra/
@@ -131,5 +121,5 @@ jobs:
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
-          issue-number: ${{ needs.release.outputs.number_issue.issueNumber }}
+          issue-number: ${{ needs.release.outputs.issueNumber }}
           comment: Auto-closing issue
