@@ -67,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           filename: .github/ISSUE_TEMPLATE.md
-          update-existing: true
+          update_existing: true
           search_existing: all
 
       - name: Comment issue with test results
