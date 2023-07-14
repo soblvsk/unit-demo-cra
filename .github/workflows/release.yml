@@ -122,4 +122,6 @@ jobs:
         uses: peter-evans/close-issue@v3
         with:
           issue-number: ${{ needs.release.outputs.issueNumber }}
-          comment: Auto-closing issue
+          comment: |
+            ## ✅ Close Issue
+            Issue automatically closed on successful deployment
