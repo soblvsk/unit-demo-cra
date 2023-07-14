@@ -54,26 +54,6 @@ jobs:
           semver: false
           use-github-autolink: true
 
-      # - name: Create issue
-      #   id: create_issue
-      #   uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
-      #   with:
-      #     assignees: 'soblvsk'
-      #     labels: 'RELEASE'
-      #     title: '[${{ github.ref_name }}] Release'
-      #     body: |
-      #       ## 👀 Information
-      #       - **Version:** ${{ steps.tags.outputs.currentTag}}
-      #       - **Author:** ${{ steps.tags.outputs.author }}
-      #       - **Date:** ${{ steps.tags.outputs.date }}
-
-      #       ${{ steps.build_changelog.outputs.changelog }}
-      #     pinned: false
-      #     close-previous: false
-      #     update-existing: true
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create issue
         id: create_issue
         uses: JasonEtco/create-an-issue@v2
