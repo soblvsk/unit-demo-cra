@@ -86,8 +86,10 @@ jobs:
 
       - name: Get issue number
         id: number_issue
-        run: |
-          echo "::set-output name=issueNumber::${{ steps.create_issue.outputs.issue-number }}"
+        run: echo "::set-output name=issue-number::123"
+
+    outputs:
+      issueNumber: ${{ steps.create_issue.outputs.issue-number }}"
 
   build-and-deploy:
     needs: release
@@ -100,15 +102,16 @@ jobs:
         with:
           node-version: 18
 
+      - name: Print Issue Number
+        run: |
+          echo "Issue number1: ${{ needs.release.outputs.issue-number }}"
+          echo "Issue number2: ${{ needs.release.outputs.number_issue.issue-number }}"
+          echo "Issue number3: ${{ needs.release.outputs.issueNumber }}"
+
       - name: Install and Build
         run: |
           npm ci
-          URL="/unit-demo-cra" npm run build
-
-      - name: Print Issue Number
-        run: |
-          echo "Issue number: ${{ needs.release.outputs.number_issue.issueNumber }}"
-          echo "Issue number2: ${{ needs.release.outputs.issueNumber }}"
+          PUBLIC_URL="/unit-demo-cra" npm run build
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
