@@ -54,29 +54,44 @@ jobs:
           semver: false
           use-github-autolink: true
 
+      # - name: Create issue
+      #   id: create_issue
+      #   uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
+      #   with:
+      #     assignees: 'soblvsk'
+      #     labels: 'RELEASE'
+      #     title: '[${{ github.ref_name }}] Release'
+      #     body: |
+      #       ## 👀 Information
+      #       - **Version:** ${{ steps.tags.outputs.currentTag}}
+      #       - **Author:** ${{ steps.tags.outputs.author }}
+      #       - **Date:** ${{ steps.tags.outputs.date }}
+
+      #       ${{ steps.build_changelog.outputs.changelog }}
+      #     pinned: false
+      #     close-previous: false
+      #     update-existing: true
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create issue
         id: create_issue
-        uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
+        uses: JasonEtco/create-an-issue@v2
         with:
-          assignees: 'soblvsk'
-          labels: 'RELEASE'
-          title: '[${{ github.ref_name }}] Release'
-          body: |
-            ## 👀 Information
-            - **Version:** ${{ steps.tags.outputs.currentTag}}
-            - **Author:** ${{ steps.tags.outputs.author }}
-            - **Date:** ${{ steps.tags.outputs.date }}
-
-            ${{ steps.build_changelog.outputs.changelog }}
-          pinned: false
-          close-previous: false
+          filename: .github/ISSUE_TEMPLATE.md
+          update-existing: true
+          search_existing: all
         env:
+          VERSION: ${{ steps.tags.outputs.currentTag}}
+          AUTHOR: ${{ steps.tags.outputs.author }}
+          DATE: ${{ steps.tags.outputs.date }}
+          CHANGELOG: ${{ steps.build_changelog.outputs.changelog }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment issue with test results
         uses: peter-evans/create-or-update-comment@v3
         with:
-          issue-number: ${{ steps.create_issue.outputs.issue-number }}
+          issue-number: ${{ steps.create_issue.outputs.number }}
           body: |
             ## ⚙️ Tests results
             Download the files with the test results, can be downloaded from the link below:
@@ -85,7 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     outputs:
-      issueNumber: ${{ steps.create_issue.outputs.issue-number }}
+      issueNumber: ${{ steps.create_issue.outputs.number }}
 
   build-and-deploy:
     needs: release
