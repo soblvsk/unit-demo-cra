@@ -1,5 +1,5 @@
 name: 🚀 Release
-# test 3
+
 on:
   push:
     tags:
@@ -115,10 +115,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Close Issue
-      #   uses: peter-evans/close-issue@v3
-      #   with:
-      #     issue-number: ${{ needs.release.outputs.issueNumber }}
-      #     comment: |
-      #       ## ✅ Close Issue
-      #       Issue automatically closed on successful deployment
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ needs.release.outputs.issueNumber }}
+          comment: |
+            ## ✅ Close Issue
+            Issue automatically closed on successful deployment
