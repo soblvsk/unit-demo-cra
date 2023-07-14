@@ -1,4 +1,4 @@
-name: Release
+name: 🚀 Release
 
 on:
   push:
@@ -6,7 +6,11 @@ on:
       - 'v[0-9]+'
 
 jobs:
+  tests:
+    uses: ./.github/workflows/ci.yml
+
   release:
+    needs: tests
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -51,6 +55,7 @@ jobs:
           use-github-autolink: true
 
       - name: Create issue
+        id: create_issue
         uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
         with:
           assignees: 'soblvsk'
@@ -68,12 +73,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  tests:
-    needs: release
-    uses: ./.github/workflows/ci.yml
+      - name: Comment issue with test results
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ steps.create_issue.outputs.issue-number }}
+          body: |
+            ## ⚙️ Tests results
+            Download the files with the test results, can be downloaded from the link below:
+            ${{github.server_url}}/${{ github.repository }}/actions/runs/${{github.run_id}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    outputs:
+      issueNumber: ${{ steps.create_issue.outputs.issue-number }}
 
   build-and-deploy:
-    needs: tests
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -86,4 +101,27 @@ jobs:
       - name: Install and Build
         run: |
           npm ci
-          npm run build
+          PUBLIC_URL="/unit-demo-cra" npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+
+      - name: Comment issue with deploy
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ needs.release.outputs.issueNumber }}
+          body: |
+            ## 💫 Deploy
+            Deployment link: https://soblvsk.github.io/unit-demo-cra/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ needs.release.outputs.issueNumber }}
+          comment: |
+            ## ✅ Close Issue
+            Issue automatically closed on successful deployment

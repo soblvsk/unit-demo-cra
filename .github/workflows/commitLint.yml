@@ -1,4 +1,4 @@
-name: Lint Commit Messages
+name: 📖 Lint Commit Messages
 
 on: [push, pull_request]
 

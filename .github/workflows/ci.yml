@@ -1,4 +1,4 @@
-name: CI Tests
+name: 💢 CI Tests
 
 on: [pull_request, workflow_call]
 
@@ -35,7 +35,14 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm run test-ci
+        run: npm run test-ci |& tee unit-results.txt
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: unit-results
+          path: test-report.html
+          retention-days: 30
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -66,6 +73,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: playwright-report
+          name: e2e-results
           path: playwright-report/
           retention-days: 30
