@@ -85,7 +85,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get issue number
+        id: number_issue
         run: |
+          echo "::set-output name=issueNumber::${{ steps.create_issue.outputs.issue-number }}"
           issueNumber=${{ steps.create_issue.outputs.issue-number }}
           echo "issueNumber=${issueNumber}" >> $GITHUB_OUTPUT
 
@@ -103,13 +105,13 @@ jobs:
       - name: Install and Build
         run: |
           npm ci
-          npm run build
+          PUBLIC_URL="/shri-unit-demo-cra" npm run build
 
       - name: Print Issue Number
         run: |
-          echo "Issue number: ${{ needs.release.outputs.issueNumber }}"
-          echo "Issue number2: ${{ needs.release.outputs.issue-nubmer }}"
-          echo "Issue number3: ${{ needs.release.outputs.issue_number }}"
+          echo "Issue number: ${{ needs.release.outputs.number_issue.issueNumber }}"
+          echo "Issue number2: ${{ needs.release.outputs.issueNumber }}"
+          echo "Issue number3: ${{ needs.release.outputs.number_issue.issueNumber }}"
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
