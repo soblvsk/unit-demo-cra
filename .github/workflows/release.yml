@@ -59,16 +59,16 @@ jobs:
       - name: Create issue
         id: create_issue
         uses: JasonEtco/create-an-issue@v2
-        with:
-          filename: .github/ISSUE_TEMPLATE.md
-          update-existing: true
-          search_existing: all
         env:
           VERSION: ${{ steps.tags.outputs.currentTag}}
           AUTHOR: ${{ steps.tags.outputs.author }}
           DATE: ${{ steps.tags.outputs.date }}
           CHANGELOG: ${{ steps.build_changelog.outputs.changelog }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: .github/ISSUE_TEMPLATE.md
+          update-existing: true
+          search_existing: all
 
       - name: Comment issue with test results
         uses: peter-evans/create-or-update-comment@v3
