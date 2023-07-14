@@ -5,6 +5,10 @@ on:
     tags:
       - 'v[0-9]+'
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   tests:
     uses: ./.github/workflows/ci.yml
@@ -12,8 +16,6 @@ jobs:
   release:
     needs: tests
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -54,44 +56,46 @@ jobs:
           semver: false
           use-github-autolink: true
 
-      - name: Create issue
+      - name: Create or update issue
         id: create_issue
-        uses: imjohnbo/issue-bot@3d96848fb5e9a4a473bb81ae62b4b4866a56e93a
-        with:
-          assignees: 'soblvsk'
-          labels: 'RELEASE'
-          title: '[${{ github.ref_name }}] Release'
-          body: |
-            ## 👀 Information
-            - **Version:** ${{ steps.tags.outputs.currentTag}}
-            - **Author:** ${{ steps.tags.outputs.author }}
-            - **Date:** ${{ steps.tags.outputs.date }}
-
-            ${{ steps.build_changelog.outputs.changelog }}
-          pinned: false
-          close-previous: false
+        uses: JasonEtco/create-an-issue@v2
         env:
+          VERSION: ${{ steps.tags.outputs.currentTag}}
+          AUTHOR: ${{ steps.tags.outputs.author }}
+          DATE: ${{ steps.tags.outputs.date }}
+          CHANGELOG: ${{ steps.build_changelog.outputs.changelog }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: .github/ISSUE_TEMPLATE.md
+          update_existing: true
+          search_existing: all
 
       - name: Comment issue with test results
         uses: peter-evans/create-or-update-comment@v3
         with:
-          issue-number: ${{ steps.create_issue.outputs.issue-number }}
+          issue-number: ${{ steps.create_issue.outputs.number }}
           body: |
-            ## ⚙️ Tests results
+            ## ⚙️ Tests results №${{ github.run_id }}
             Download the files with the test results, can be downloaded from the link below:
             ${{github.server_url}}/${{ github.repository }}/actions/runs/${{github.run_id}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     outputs:
-      issueNumber: ${{ steps.create_issue.outputs.issue-number }}
+      issueNumber: ${{ steps.create_issue.outputs.number }}
 
   build-and-deploy:
     needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN_ACTION }}
+
+      - name: Create release branch
+        run: |
+          git checkout -b release-${{ github.ref_name }}
+          git push -u origin release-${{ github.ref_name }}
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -113,7 +117,7 @@ jobs:
         with:
           issue-number: ${{ needs.release.outputs.issueNumber }}
           body: |
-            ## 💫 Deploy
+            ## 💫 Deploy №${{ github.run_id }}
             Deployment link: https://soblvsk.github.io/unit-demo-cra/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
