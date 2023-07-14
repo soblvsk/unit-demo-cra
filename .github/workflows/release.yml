@@ -105,6 +105,12 @@ jobs:
           npm ci
           npm run build
 
+      - name: Print Issue Number
+        run: |
+          echo "Issue number: ${{ needs.release.outputs.issueNumber }}"
+          echo "Issue number2: ${{ needs.release.outputs.issue-nubmer }}"
+          echo "Issue number3: ${{ needs.release.outputs.issue_number }}"
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
