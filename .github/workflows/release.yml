@@ -113,16 +113,6 @@ jobs:
         with:
           folder: build
 
-      - name: Comment issue with deploy
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ needs.release.outputs.issueNumber }}
-          body: |
-            ## 💫 Deploy №${{ github.run_id }}
-            Deployment link: https://soblvsk.github.io/unit-demo-cra/
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     outputs:
       issueNumber: ${{ needs.release.outputs.issueNumber }}
 
