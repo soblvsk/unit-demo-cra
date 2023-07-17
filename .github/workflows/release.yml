@@ -113,13 +113,6 @@ jobs:
         with:
           folder: build
 
-  close-issue:
-    permissions:
-      contents: read
-      issues: write
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    steps:
       - name: Comment issue with deploy
         uses: peter-evans/create-or-update-comment@v3
         with:
@@ -130,10 +123,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    outputs:
+      issueNumber: ${{ needs.release.outputs.issueNumber }}
+
+  close-issue:
+    permissions:
+      contents: read
+      issues: write
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment issue with deploy
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ needs.build-and-deploy.outputs.issueNumber }}
+          body: |
+            ## 💫 Deploy №${{ github.run_id }}
+            Deployment link: https://soblvsk.github.io/unit-demo-cra/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Close Issue
         uses: peter-evans/close-issue@v3
         with:
-          issue-number: ${{ needs.release.outputs.issueNumber }}
+          issue-number: ${{ needs.build-and-deploy.outputs.issueNumber }}
           comment: |
             ## ✅ Close Issue
             Issue automatically closed on successful deployment
