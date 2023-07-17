@@ -113,6 +113,13 @@ jobs:
         with:
           folder: build
 
+  close-issue:
+    permissions:
+      contents: read
+      issues: write
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
       - name: Comment issue with deploy
         uses: peter-evans/create-or-update-comment@v3
         with:
