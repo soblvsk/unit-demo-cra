@@ -35,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Run unit tests
-        run: npm run test-ci |& tee unit-results.txt
+        run: npm run test-ci
 
       - uses: actions/upload-artifact@v3
         if: always()
